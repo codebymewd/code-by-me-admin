@@ -1,0 +1,78 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- owner check: a Firebase Auth user is the CBM owner only if a
+    // document exists at admins/{their uid}. Create this document manually
+    // in the Firebase console (Firestore) after creating the owner's
+    // Firebase Authentication account — see admin/README section in the
+    // project README for the exact steps. This is the single source of
+    // truth for "who can manage the dashboard," enforced here, not just
+    // hidden behind the dashboard's UI.
+    function isOwner() {
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Owners can read their own admin record; nobody can write it from
+    // client code (add/remove owners directly in the Firebase console).
+    match /admins/{uid} {
+      allow read: if isOwner();
+      allow write: if false;
+    }
+
+    // ---- templates: public read of published templates; owner manages all ----
+    match /templates/{templateId} {
+      // get is intentionally unrestricted (not gated on active): template-details.js
+      // relies on being able to fetch an inactive template by ID to show its own
+      // "not available" message, and a customer's Check Order downloads need to
+      // resolve the template they purchased even if it's since been unpublished.
+      // list stays published-only so the marketplace/home page never surfaces
+      // unpublished or draft templates.
+      allow get: if true;
+      allow list: if resource.data.active == true || isOwner();
+      allow create, update, delete: if isOwner();
+    }
+
+    // ---- projects: public read; owner manages ----
+    match /projects/{projectId} {
+      allow read: if true;
+      allow create, update, delete: if isOwner();
+    }
+
+    // ---- settings: public read (business info, payment details); owner writes ----
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // ---- orders: customers create their own order and can GET (never LIST)
+    // a single order by its document ID (the generated Order ID) — see
+    // check-order.js for the client-side email match on top of this. The
+    // owner can read/list/update everything (payment verification workflow).
+    match /orders/{orderId} {
+      allow get: if true;
+      allow list: if isOwner();
+      allow create: if request.resource.data.orderId == orderId
+                    && request.resource.data.orderStatus == "Awaiting Verification"
+                    && request.resource.data.paymentStatus == "Payment Submitted"
+                    && request.resource.data.email is string
+                    && request.resource.data.amount is number;
+      allow update: if isOwner();
+      allow delete: if isOwner();
+    }
+
+    // ---- contactMessages: customers create, only the owner reads them back ----
+    match /contactMessages/{messageId} {
+      allow create: if request.resource.data.email is string
+                    && request.resource.data.message is string;
+      allow read, update, delete: if isOwner();
+    }
+
+    // ---- promoMedia: standalone marketing assets, owner-only end to end ----
+    match /promoMedia/{mediaId} {
+      allow read, create, update, delete: if isOwner();
+    }
+  }
+}

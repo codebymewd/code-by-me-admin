@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner Login — CBM Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-login-wrap">
+  <div class="admin-login-card">
+    <div class="brand">
+      <span class="brand-mark"><span class="bm-brace">{</span><span class="bm-angle"><</span><span class="bm-core">CBM</span><span class="bm-angle">/></span><span class="bm-brace">}</span></span>
+      <span class="brand-name">CBM Dashboard</span>
+    </div>
+    <h2 style="text-align:center;font-size:19px;">Owner Sign In</h2>
+    <p class="form-hint" style="text-align:center;margin-bottom:20px;">Private administration area. Not for customer accounts.</p>
+
+    <div id="denied-notice" class="form-hint" style="display:none;color:#B23A3A;margin-bottom:14px;text-align:center;">
+      That account isn't authorized as a CBM owner. Contact the developer to be added.
+    </div>
+
+    <form id="login-form">
+      <div class="form-field">
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" required autocomplete="username">
+      </div>
+      <div class="form-field">
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" required autocomplete="current-password">
+      </div>
+      <div id="login-error" class="form-hint" style="display:none;color:#B23A3A;margin-bottom:14px;"></div>
+      <button type="submit" class="btn btn-primary btn-block" id="login-btn">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<script type="module" src="js/login.js"></script>
+</body>
+</html>

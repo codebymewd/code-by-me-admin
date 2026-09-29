@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBM Owner Dashboard</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B0C0E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<div id="offline-banner" class="offline-banner">You're offline. Dashboard data can't be loaded or saved until your connection returns.</div>
+
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="brand">
+      <span class="brand-mark"><span class="bm-brace">{</span><span class="bm-angle"><</span><span class="bm-core">CBM</span><span class="bm-angle">/></span><span class="bm-brace">}</span></span>
+      <span class="brand-name">Dashboard</span>
+    </div>
+    <nav class="admin-nav" id="admin-nav">
+      <a href="#dashboard" data-route="dashboard">Dashboard</a>
+      <a href="#orders" data-route="orders">Orders</a>
+      <a href="#templates" data-route="templates">Templates</a>
+      <a href="#projects" data-route="projects">Projects</a>
+      <a href="#messages" data-route="messages">Messages</a>
+      <a href="#media" data-route="media">Media</a>
+      <a href="#settings" data-route="settings">Settings</a>
+    </nav>
+    <button class="admin-logout" id="logout-btn">Log Out</button>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 id="panel-title">Dashboard</h1>
+      <div class="admin-topbar-actions">
+        <div class="notif-wrap" id="notif-wrap">
+          <button type="button" class="notif-bell-btn" id="notif-bell-btn" aria-label="Notifications">
+            <span aria-hidden="true">🔔</span>
+            <span class="notif-badge" id="notif-badge" hidden>0</span>
+          </button>
+          <div class="notif-panel" id="notif-panel" hidden></div>
+        </div>
+        <span class="admin-owner-chip" id="owner-chip"></span>
+      </div>
+    </div>
+    <div id="panel-root">
+      <div class="skeleton skeleton-card"></div>
+    </div>
+  </main>
+</div>
+
+<script type="module" src="js/admin-app.js"></script>
+</body>
+</html>
