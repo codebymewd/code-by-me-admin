@@ -16,6 +16,12 @@
 //   cbm_promotional_media
 //   Folder: cbm/promotional-media
 //
+//   cbm_template_files   (deliverables: ZIP/PDF, etc.)
+//   Folder: cbm/template-files
+//
+//   cbm_project_files    (deliverables: ZIP/PDF, etc.)
+//   Folder: cbm/project-files
+//
 // Cloudinary account:
 //   Cloud name: qkhyms14
 // =====================================================================
@@ -41,6 +47,17 @@ export const ADMIN_PRESETS = {
   promo: {
     preset: "cbm_promotional_media",
     folder: "cbm/promotional-media",
+  },
+
+  // Downloadable deliverables (ZIP, PDF, etc.)
+  templateFile: {
+    preset: "cbm_template_files",
+    folder: "cbm/template-files",
+  },
+
+  projectFile: {
+    preset: "cbm_project_files",
+    folder: "cbm/project-files",
   },
 };
 
@@ -127,4 +144,68 @@ export async function uploadAdminMedia(file, kind = "template") {
 // It uses the same image/video uploader above.
 // =====================================================================
 
-export const uploadAdminFile = uploadAdminMedia;
+// =====================================================================
+// UPLOAD DELIVERABLE FILE
+//
+// For non-media downloads (ZIP, PDF, etc.). Uses Cloudinary's
+// "auto" upload endpoint and returns the shape fileSlotHtml() expects:
+//   { url, fileName, size, uploadedAt, publicId, resourceType, format }
+//
+// kind can be:
+// - "templateFile"
+// - "projectFile"
+// =====================================================================
+
+export async function uploadDeliverableFile(file, kind = "templateFile") {
+  if (!file) {
+    throw new Error("No file selected.");
+  }
+
+  const cfg = ADMIN_PRESETS[kind];
+
+  if (!cfg) {
+    throw new Error(`Unknown Cloudinary upload type: ${kind}`);
+  }
+
+  const url =
+    `https://api.cloudinary.com/v1_1/` +
+    `${CLOUDINARY_CLOUD_NAME}/` +
+    `auto/upload`;
+
+  const formData = new FormData();
+
+  formData.append("file", file);
+  formData.append("upload_preset", cfg.preset);
+  formData.append("folder", cfg.folder);
+
+  const response = await fetch(url, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+
+    throw new Error(
+      "Cloudinary upload failed: " + errorText
+    );
+  }
+
+  const data = await response.json();
+
+  return {
+    url: data.secure_url,
+    fileName: file.name,
+    size: data.bytes || file.size || null,
+    uploadedAt: new Date().toISOString(),
+    publicId: data.public_id,
+    resourceType: data.resource_type,
+    format: data.format || null,
+  };
+}
+
+
+// projects.js calls uploadAdminFile(file, "projectFile") for deliverables,
+// so route that name to the deliverable uploader. Media uploads
+// (images/videos) still go through uploadAdminMedia directly.
+export const uploadAdminFile = uploadDeliverableFile;
